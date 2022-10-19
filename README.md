@@ -48,6 +48,7 @@ git clone https://github.com/bobby-didcoding/hashconnect_django.git .
 copy .env.template .env
 cd backend
 copy .env.template .env
+mkdir static
 cd ..
 cd frontend
 copy .env.template .env
