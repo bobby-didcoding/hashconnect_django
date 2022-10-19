@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+
+  pg_db:
+    image: postgres
+    restart: unless-stopped
+    volumes:
+      - demo_pg:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=hashconnect
+      - POSTGRES_PASSWORD=hashconnect
+      - POSTGRES_DB=hashconnect
+      - POSTGRES_PORT=5432
+    ports:
+      - "5432:5342"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=demo@didcoding.com
+      - PGADMIN_DEFAULT_PASSWORD=hashconnect
+    restart: unless-stopped
+    volumes:
+      - demo_pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+
+  react_app:
+    build:
+      context: ./frontend
+      dockerfile: docker/docker_files/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/code
+      - '/code/node_modules'
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 3000:3000
+    container_name: react_app
+    stdin_open: true
+
+  django_app:
+    build:
+      context: ./backend
+      dockerfile: docker/docker_files/Dockerfile
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/code
+    ports:
+      - 8000:8000
+      - "2222:22"
+    env_file:
+      - ./backend/.env
+    container_name: django_app
+    depends_on:
+        - pg_db
+
+volumes:
+  demo_pg:
+  demo_pgadmin:
